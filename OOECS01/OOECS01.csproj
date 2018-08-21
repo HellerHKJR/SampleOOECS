@@ -37,6 +37,7 @@
     <Reference Include="AcsCore, Version=7.3.0.15, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\Program Files (x86)\PEER Group\EIB 7.3\bin\AcsCore.dll</HintPath>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
     </Reference>
     <Reference Include="AcsEibCore">
       <HintPath>..\..\..\..\..\Program Files (x86)\PEER Group\EIB 7.3\bin\AcsEibCore.dll</HintPath>
@@ -109,6 +110,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Class1.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -140,6 +142,13 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="ExtLibs\fbembed.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExtLibs\ib_util.dll" />
+    <Content Include="ExtLibs\icudt30.dll" />
+    <Content Include="ExtLibs\icuin30.dll" />
+    <Content Include="ExtLibs\icuuc30.dll" />
     <Content Include="ExtLibs\LicenseAccess.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

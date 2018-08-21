@@ -5,15 +5,18 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Runtime.InteropServices;
+using System.IO;
 using System.Windows.Forms;
 using Acs.Common;
 using Acs.Common.Extensions;
 using Acs.Eib.EibCore.Interface.ECS;
-//using Acs.Common.DataType;
-//using Acs.Common.Errors;
+using Acs.Common.DataType;
+using Acs.Common.Errors;
 using Acs.Framework;
 using Acs.Eib.EibCore;
 using Acs.Eib.EibFactory;
+using System.Threading;
 
 
 namespace OOECS01
@@ -37,6 +40,8 @@ namespace OOECS01
         private IEcsVariablesService variableService = null;
         private IEcsMessageValidationService messageValidationService = null;
 
+        public event EventHandler<ControlArg> OnChangeControl;
+
         public MainForm()
         {
             InitializeComponent();
@@ -46,36 +51,129 @@ namespace OOECS01
         public object[] GetTSClockAttributes(string[] attributes)
         {
             throw new NotImplementedException();
+            //sample also not implemented
         }
 
-        public void SetClock(Acs.Common.DataType.BaseDate dateTime)
+        [StructLayout(LayoutKind.Sequential)]
+        private struct SYSTEMTIME
         {
-            throw new NotImplementedException();
+            public short wYear;
+            public short wMonth;
+            public short wDayOfWeek;
+            public short wDay;
+            public short wHour;
+            public short wMinute;
+            public short wSecond;
+            public short wMilliseconds;
+        }
+        [DllImport("kernel32.dll", SetLastError = true)]
+        private static extern bool SetSystemTime(ref SYSTEMTIME st);
+        public void SetClock(BaseDate dateTime)
+        {
+            //H->E S2F17 Date and Time Request
+            //For Eqp request clock, use clockService.SetClockFromSource()            
+            Console.WriteLine("[EIB]Time Reply From Host: {0}", dateTime.LocalDateTime);
+
+            try
+            {
+                //string timeFormat = UseXMLConfig.GetValueXPath("//SecsConfig/HostTimeFormat", strConfigPath);
+                //bool timeZoneUTC = "true".Equals(UseXMLConfig.GetAttrXPath("//SecsConfig/HostTimeFormat", "useUTC0", strConfigPath));
+                string timeFormat = "yyyyMMddHHmmsscc";
+                bool timeZoneUTC = false;
+
+                int yearLength = timeFormat.Count(f => f == 'y');
+                int ccLength = timeFormat.Count(f => f == 'c');
+
+                DateTime tempDateTime;
+
+                if (timeZoneUTC) tempDateTime = dateTime.LocalDateTime;
+                else tempDateTime = dateTime.GMTDateTime;
+
+                SYSTEMTIME st = new SYSTEMTIME();
+                // All of these must be short
+                st.wYear = (short)tempDateTime.Year;
+                st.wMonth = (short)tempDateTime.Month;
+                st.wDay = (short)tempDateTime.Day;
+                st.wHour = (short)tempDateTime.Hour;
+                st.wMinute = (short)tempDateTime.Minute;
+                st.wSecond = (short)tempDateTime.Second;
+
+                // invoke the SetSystemTime method now
+                if (!SetSystemTime(ref st))
+                    Console.WriteLine("To change system time, Run as administrator");
+                //UseLog.Log(UseLog.LogCategory.Event, "To change system time, Run as administrator");
+            }
+            catch
+            {
+                Console.WriteLine("Invalid Time Format. Please Check again.");
+            }
+
         }
 
         public void SetTSClockAttributes(string[] attributes, object[] values)
         {
             throw new NotImplementedException();
+            //sample also not implemented
         }
         #endregion
 
         #region IEcsCommandMessageHandler
+        public CommandReply ExecuteCommandSynchronous(EcsCommand commandName, string[] parameterNames, object[] parameterValues, long closure)
+        {
+            throw new NotImplementedException();
+        }
         public CommandReply ExecuteCommandAsynchronous(EcsCommand command, string[] parameterNames, object[] parameterValues, long closure, int transactionId)
         {
-            throw new NotImplementedException();
+            ObjParameterData[] replyParams = new ObjParameterData[parameterNames.Length];
+            for (int i = 0; i < parameterNames.Length; i++)
+                replyParams[i] = new ObjParameterData(parameterNames[i], parameterValues[i]);
+            
+            HostRemoteCommandArg arg = new HostRemoteCommandArg(transactionId, 2, 41, closure, command.CommandName);
+            for (int i = 0; i < parameterNames.Length; i++)
+                arg.SetCPVal(parameterNames[i], parameterValues[i].ToString());
+
+            OnChangeControl?.BeginInvoke(this, new ControlArg("RemoteCommand", arg, replyParams), null, null);
+
+            ////Test
+            //arg.SetHcAck(1);
+            //RspRemoteCommandToHost(arg, replyParams);
+            ////Test
+
+            return null;
+        }
+        public void RspRemoteCommandToHost(HostRemoteCommandArg arg, ObjParameterData[] replyParams)
+        {
+            if( arg.HcAck != 0 )
+                this.commandService.CommandFailed(new CustomAckCodeException("", Convert.ToInt32(arg.HcAck)), Convert.ToInt32(arg.nObjectID));
+            else
+                this.commandService.CommandAcknowledge(new CommandReply(replyParams, arg.nSB, true), Convert.ToInt32(arg.nObjectID));
         }
 
-        public CommandReply ExecuteCommandSynchronous(EcsCommand command, string[] parameterNames, object[] parameterValues, long closure)
-        {
-            throw new NotImplementedException();
-        }
         #endregion
 
         #region IEcsCustomMessageHandler
         public object RequestReplyFromECS(string messageName, object dataStructure)
         {
-            throw new NotImplementedException();
+            Console.WriteLine("{0}:{1}", messageName, (object[])dataStructure);
+            
+            return dataStructure;
         }
+
+        public void SendCustomMessage()
+        {
+            customMessageService.SendCustomMessageToEIB("TestCusomMessageFromECS",
+                new object[]
+                {
+                    "test",
+                    "test2",
+                    1,
+                    (short)2,
+                    (uint)4,
+                    (byte)1
+                }
+                , false);
+        }
+
 
         #endregion
 
@@ -92,17 +190,17 @@ namespace OOECS01
 
         public void InterfacesLoaded()
         {
-            throw new NotImplementedException();
+            Console.WriteLine("Interfaces Loaded!!!");
         }
 
         public void ConfigurationCompleted()
         {
-            throw new NotImplementedException();
+            Console.WriteLine("Configuration Completed!!!");
         }
 
         public void ServerStarted()
         {
-            throw new NotImplementedException();
+            Console.WriteLine("Server Started!!!");
         }
         #endregion
 
@@ -196,7 +294,7 @@ namespace OOECS01
         {
             try
             {
-                root = ApplicationRoot.Singleton;
+                root = ApplicationRoot.Singleton;                
                 root.CoreLoaded += Root_CoreLoaded;
                 new MainFactory().Make(root, txtToolModel.Text, true);
                 btnStart.Enabled = false;
@@ -308,6 +406,19 @@ namespace OOECS01
                 if (clockService != null)
                     setClockFromSourceButton.Enabled = true;
 
+            }
+        }
+
+        private void setClockFromSourceButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                clockService.SetClockFromSource();
+                //MessageBox.Show("Command successfully issued.");
+            }
+            catch (Exception ex)
+            {
+                //MessageBox.Show(this, "Error sending command.\n " + ex.Message);
             }
         }
     }

@@ -173,6 +173,7 @@
             this.setClockFromSourceButton.Size = new System.Drawing.Size(130, 23);
             this.setClockFromSourceButton.TabIndex = 144;
             this.setClockFromSourceButton.Text = "Set Clock From Source";
+            this.setClockFromSourceButton.Click += new System.EventHandler(this.setClockFromSourceButton_Click);
             // 
             // label27
             // 
