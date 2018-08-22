@@ -174,18 +174,17 @@ namespace OOECS01
                 , false);
         }
 
-
         #endregion
 
         #region IEcsMaintenanceMessageHandler
         public void ControlStateChange(string interfaceName, byte previousState, byte currentState)
         {
-            throw new NotImplementedException();
+            Console.WriteLine("Control State Changed at {0}, from {1} to {2}", interfaceName, previousState, currentState);
         }
 
         public void CommunicationStateChange(string interfaceName, bool previousState, bool currentState)
         {
-            throw new NotImplementedException();
+            Console.WriteLine("Communication State Changed at {0}, from {1} to {2}", interfaceName, previousState, currentState);
         }
 
         public void InterfacesLoaded()
