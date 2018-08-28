@@ -88,6 +88,7 @@
             this.label25 = new System.Windows.Forms.Label();
             this.btnMessageRecognized = new System.Windows.Forms.Button();
             this.label26 = new System.Windows.Forms.Label();
+            this.btnStart2 = new System.Windows.Forms.Button();
             this.netECSServerConfigGroupBox.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -347,6 +348,7 @@
             // 
             // netECSServerConfigGroupBox
             // 
+            this.netECSServerConfigGroupBox.Controls.Add(this.btnStart2);
             this.netECSServerConfigGroupBox.Controls.Add(this.btnStart);
             this.netECSServerConfigGroupBox.Controls.Add(this.txtToolModel);
             this.netECSServerConfigGroupBox.Controls.Add(this.ecsServerNameTextBox);
@@ -365,7 +367,7 @@
             this.btnStart.Name = "btnStart";
             this.btnStart.Size = new System.Drawing.Size(75, 22);
             this.btnStart.TabIndex = 104;
-            this.btnStart.Text = "Start";
+            this.btnStart.Text = "Start1";
             this.btnStart.UseVisualStyleBackColor = true;
             this.btnStart.Click += new System.EventHandler(this.btnStart_Click);
             // 
@@ -451,6 +453,7 @@
             this.eventButton.Size = new System.Drawing.Size(128, 23);
             this.eventButton.TabIndex = 124;
             this.eventButton.Text = "Send Event";
+            this.eventButton.Click += new System.EventHandler(this.eventButton_Click);
             // 
             // alarmButton
             // 
@@ -460,6 +463,7 @@
             this.alarmButton.Size = new System.Drawing.Size(128, 23);
             this.alarmButton.TabIndex = 123;
             this.alarmButton.Text = "Send Alarm";
+            this.alarmButton.Click += new System.EventHandler(this.alarmButton_Click);
             // 
             // btnShutdownApplication
             // 
@@ -640,6 +644,16 @@
             this.label26.TabIndex = 154;
             this.label26.Text = "Terminal message has been recognized";
             // 
+            // btnStart2
+            // 
+            this.btnStart2.Location = new System.Drawing.Point(584, 43);
+            this.btnStart2.Name = "btnStart2";
+            this.btnStart2.Size = new System.Drawing.Size(75, 22);
+            this.btnStart2.TabIndex = 105;
+            this.btnStart2.Text = "Start2";
+            this.btnStart2.UseVisualStyleBackColor = true;
+            this.btnStart2.Click += new System.EventHandler(this.btnStart2_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -771,6 +785,7 @@
         private System.Windows.Forms.Label label25;
         private System.Windows.Forms.Button btnMessageRecognized;
         private System.Windows.Forms.Label label26;
+        private System.Windows.Forms.Button btnStart2;
     }
 }
 
